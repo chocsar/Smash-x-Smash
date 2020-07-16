@@ -36,6 +36,8 @@ public class PlayerController : MonoBehaviour
     private Transform spriteTransform;
     private Transform bodyColliderTransform;
 
+    private PlayerStatusManager playerStatusManager;
+
     //＝＝＝内部パラメータ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     private float speedVx = 0.0f;
     private int jumpCount = 0;
@@ -68,6 +70,8 @@ public class PlayerController : MonoBehaviour
         initBodyColliderPos = bodyColliderTransform.localPosition;
 
         gravityScale = rb2D.gravityScale;
+
+        playerStatusManager = GetComponent<PlayerStatusManager>();
     }
 
     void Start()

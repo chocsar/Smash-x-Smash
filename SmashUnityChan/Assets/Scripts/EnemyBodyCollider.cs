@@ -7,6 +7,7 @@ public class EnemyBodyCollider : MonoBehaviour
     EnemyController enemyCtrl;
     Animator playerAnim;
     PlayerController playerCtrl;
+    PlayerStatusManager playerStatusManager;
 
     int attackHash = 0; //ダメージ判定を一度きりに制限するため
     
@@ -15,6 +16,8 @@ public class EnemyBodyCollider : MonoBehaviour
         enemyCtrl = GetComponentInParent<EnemyController>();
         playerAnim = GameObject.FindWithTag("Player").GetComponent<Animator>();
         playerCtrl = playerAnim.GetComponent<PlayerController>();
+
+        playerStatusManager = playerAnim.GetComponent<PlayerStatusManager>();
     }
 
     void Update()
@@ -36,6 +39,8 @@ public class EnemyBodyCollider : MonoBehaviour
                 attackHash = stateInfo.fullPathHash;
                 enemyCtrl.ActionDamage();
                 enemyCtrl.NockBack(playerCtrl.attackNockBackVector);
+
+                playerStatusManager.AddExp(100);
             }
         }
     }
