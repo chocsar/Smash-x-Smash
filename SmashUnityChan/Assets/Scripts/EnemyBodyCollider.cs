@@ -40,7 +40,7 @@ public class EnemyBodyCollider : MonoBehaviour
                 enemyCtrl.ActionDamage();
                 enemyCtrl.NockBack(playerCtrl.attackNockBackVector);
 
-                playerStatusManager.AddExp(100);
+                playerStatusManager.OnAttackHit(200, 10);
             }
         }
     }
