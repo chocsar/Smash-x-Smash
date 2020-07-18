@@ -29,10 +29,9 @@ public class PlayerStatusManager : MonoBehaviour
     private float basExpGet = 10; //攻撃により得られる経験値
     private float basSmashGet = 10; //攻撃により得られるスマッシュ値
 
-    private GameObject generatedExpEffect;
-    private Text generatedExpEffectText;
-    private float prevGenerateEffectTime;
-    private float totalExpGet;
+    private Text generatedExpEffectText; //生成したエフェクトのTextへの参照
+    private float prevGenerateEffectTime; //一つ前のエフェクト生成時刻
+    private float totalExpGet; //攻撃により得られる経験値の累計
 
    
     //＝＝＝＝＝コード（Monobehavior基本機能の実装）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
@@ -42,7 +41,7 @@ public class PlayerStatusManager : MonoBehaviour
         levelText.text = "Lv." + playerLevel.ToString();
 
         //次のレベルアップに必要な経験値の計算
-        requiredExp = CalcurateRequiredExp(playerLevel);
+        requiredExp = CalculateRequiredExp(playerLevel);
 
         //経験値スライダーの設定
         expSlider.maxValue = requiredExp;
@@ -77,10 +76,6 @@ public class PlayerStatusManager : MonoBehaviour
                 smashFlag = false;
                 smashUIAnimator.SetBool("SmashMode", smashFlag);
             }
-
-            //UI表示
-            smashSlider.value = (int)smashValue;
-
         }
         //スマッシュモードじゃない時
         else
@@ -150,8 +145,8 @@ public class PlayerStatusManager : MonoBehaviour
         if(Time.fixedTime > prevGenerateEffectTime + 0.1f)
         {
             prevGenerateEffectTime = Time.fixedTime;
-            generatedExpEffect = Instantiate(expEffect, transform.position + new Vector3(0, 2, 0) ,Quaternion.identity) as GameObject;
-            generatedExpEffectText = generatedExpEffect.GetComponentInChildren<Text>();
+            GameObject generatedEffect = Instantiate(expEffect, transform.position + new Vector3(0, 2, 0) ,Quaternion.identity) as GameObject;
+            generatedExpEffectText = generatedEffect.GetComponentInChildren<Text>();
             totalExpGet = expGet;
         }
         else
@@ -166,13 +161,13 @@ public class PlayerStatusManager : MonoBehaviour
     {
         //レベルアップ処理
         playerLevel++;
-        requiredExp = CalcurateRequiredExp(playerLevel);
+        requiredExp = CalculateRequiredExp(playerLevel);
 
         while(extraExp > requiredExp) //同時に2以上レベルが上がる時の備えて、ループ処理
         {
             playerLevel++;
             extraExp -= requiredExp;
-            requiredExp = CalcurateRequiredExp(playerLevel);
+            requiredExp = CalculateRequiredExp(playerLevel);
         }
 
         //UI設定
@@ -183,12 +178,12 @@ public class PlayerStatusManager : MonoBehaviour
         playerExp = extraExp; //あまり分を今の経験値量に反映
     }
 
-    private int CalcurateRequiredExp(int level)
+    private int CalculateRequiredExp(int level)
     {
         float requiredExp = 100 * Mathf.Pow(1.1f, level-1); //初期値100、次のレベルで1.1倍
         return  (int)requiredExp;
     }
-    
+
     // private IEnumerator SmashMode()
     // {
     //     smashFlag = true;
