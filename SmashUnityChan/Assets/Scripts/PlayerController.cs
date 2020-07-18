@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     [System.NonSerialized] public bool jumped = false;
     [System.NonSerialized] public bool grounded = false;
     [System.NonSerialized] public bool groundedPrev = false;
-    [System.NonSerialized] public Vector2 attackNockBackVector = Vector2.zero;
+    //[System.NonSerialized] public Vector2 attackNockBackVector = Vector2.zero;
 
     //アニメーションのハッシュ名
     public static int ANISTS_Idle = Animator.StringToHash("Base Layer.Player_Idle");
@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
     public static int ANISTS_Attack_C = Animator.StringToHash("Base Layer.Player_Attack_C");
     public static int ANISTS_JumpAttack = Animator.StringToHash("Base Layer.Player_JumpAttack");
 
-    
+
     //＝＝＝キャッシュ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     [System.NonSerialized] public Animator animator;
     [System.NonSerialized] public Rigidbody2D rb2D;
@@ -76,12 +76,12 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     void Update()
     {
-        
+
     }
 
     private void FixedUpdate()
@@ -95,13 +95,13 @@ public class PlayerController : MonoBehaviour
         groundCheckCollider[1] = Physics2D.OverlapPointAll(groundCheck_L.position);
         groundCheckCollider[2] = Physics2D.OverlapPointAll(groundCheck_R.position);
 
-        foreach(Collider2D[] groundCheckList in groundCheckCollider)
+        foreach (Collider2D[] groundCheckList in groundCheckCollider)
         {
-            foreach(Collider2D groundCheck in groundCheckList)
+            foreach (Collider2D groundCheck in groundCheckList)
             {
-                if(groundCheck != null)
+                if (groundCheck != null)
                 {
-                    if(!groundCheck.isTrigger)
+                    if (!groundCheck.isTrigger)
                     {
                         grounded = true;
                     }
@@ -114,9 +114,9 @@ public class PlayerController : MonoBehaviour
 
 
         //移動計算
-        if(addForceEnabled) //AddForceした時 → 一定時間、移動を物理演算に任せる
+        if (addForceEnabled) //AddForceした時 → 一定時間、移動を物理演算に任せる
         {
-            if(Time.fixedTime - addForceStartTime > 0.5f)
+            if (Time.fixedTime - addForceStartTime > 0.5f)
             {
                 addForceEnabled = false;
             }
@@ -125,7 +125,7 @@ public class PlayerController : MonoBehaviour
         {
             rb2D.velocity = new Vector2(speedVx, rb2D.velocity.y);
         }
-    
+
     }
 
     private void FixedUpdateCharacter()
@@ -134,10 +134,10 @@ public class PlayerController : MonoBehaviour
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
         //ジャンプ中のとき
-        if(jumped)
+        if (jumped)
         {
             //着地チェック
-            if(grounded && !groundedPrev)
+            if (grounded && !groundedPrev)
             {
                 jumped = false;
                 jumpCount = 0;
@@ -152,14 +152,14 @@ public class PlayerController : MonoBehaviour
         }
 
         //攻撃中の移動停止
-        if(stateInfo.fullPathHash == ANISTS_Attack_A ||
+        if (stateInfo.fullPathHash == ANISTS_Attack_A ||
             stateInfo.fullPathHash == ANISTS_Attack_B ||
             stateInfo.fullPathHash == ANISTS_Attack_C /*||
             stateInfo.fullPathHash == ANISTS_JumpAttack*/)
         {
             speedVx = 0;
         }
-    
+
         //キャラの方向
         transform.localScale = new Vector3(dir, transform.localScale.y, transform.localScale.z);
 
@@ -191,7 +191,7 @@ public class PlayerController : MonoBehaviour
 
     public void SetNextAttack(string stateName)
     {
-        if(atkInputNow == true)
+        if (atkInputNow == true)
         {
             atkInputNow = false;
             animator.Play(stateName);
@@ -206,7 +206,7 @@ public class PlayerController : MonoBehaviour
         rb2D.AddForce(new Vector2(300 * dir, 200)); //移動計算を物理演算に任せる必要性
         addForceEnabled = true;
         addForceStartTime = Time.fixedTime;
-        
+
         rb2D.gravityScale = 2f;
     }
 
@@ -221,7 +221,7 @@ public class PlayerController : MonoBehaviour
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        if(stateInfo.fullPathHash == ANISTS_Idle ||
+        if (stateInfo.fullPathHash == ANISTS_Idle ||
             stateInfo.fullPathHash == ANISTS_Walk ||
             stateInfo.fullPathHash == ANISTS_Run ||
             stateInfo.fullPathHash == ANISTS_Jump)
@@ -231,10 +231,10 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("MoveSpeed", moveSpeed);
 
             //移動
-            if(n != 0.0f)
+            if (n != 0.0f)
             {
                 dir = Mathf.Sign(n);
-                moveSpeed = (moveSpeed < 0.5f) ? (moveSpeed * (1.0f/0.5f)) : 1.0f;
+                moveSpeed = (moveSpeed < 0.5f) ? (moveSpeed * (1.0f / 0.5f)) : 1.0f;
                 speedVx = speed * moveSpeed * dir;
             }
             else
@@ -247,33 +247,33 @@ public class PlayerController : MonoBehaviour
     public void ActionJump()
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        
-         if(stateInfo.fullPathHash == ANISTS_Idle ||
-            stateInfo.fullPathHash == ANISTS_Walk ||
-            stateInfo.fullPathHash == ANISTS_Run ||
-            stateInfo.fullPathHash == ANISTS_Jump)
+
+        if (stateInfo.fullPathHash == ANISTS_Idle ||
+           stateInfo.fullPathHash == ANISTS_Walk ||
+           stateInfo.fullPathHash == ANISTS_Run ||
+           stateInfo.fullPathHash == ANISTS_Jump)
         {
-            switch(jumpCount)
+            switch (jumpCount)
             {
                 case 0:
-                if(grounded)
-                {
-                    animator.SetTrigger("Jump");
-                    rb2D.velocity = Vector2.up * 30.0f;
-                    jumped = true;
-                    jumpCount++;
-                }
-                break;
+                    if (grounded)
+                    {
+                        animator.SetTrigger("Jump");
+                        rb2D.velocity = Vector2.up * 30.0f;
+                        jumped = true;
+                        jumpCount++;
+                    }
+                    break;
 
                 case 1:
-                if(!grounded)
-                {
-                    animator.Play("Player_Jump", 0, 0.0f);
-                    rb2D.velocity = Vector2.up * 20.0f;
-                    jumped = true;
-                    jumpCount++;
-                }
-                break;
+                    if (!grounded)
+                    {
+                        animator.Play("Player_Jump", 0, 0.0f);
+                        rb2D.velocity = Vector2.up * 20.0f;
+                        jumped = true;
+                        jumpCount++;
+                    }
+                    break;
             }
         }
     }
@@ -282,42 +282,21 @@ public class PlayerController : MonoBehaviour
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        if(stateInfo.fullPathHash == ANISTS_Idle ||
+        if (stateInfo.fullPathHash == ANISTS_Idle ||
             stateInfo.fullPathHash == ANISTS_Walk ||
             stateInfo.fullPathHash == ANISTS_Run ||
             stateInfo.fullPathHash == ANISTS_Jump)
         {
             animator.SetTrigger("Attack_A");
-
-            if(stateInfo.fullPathHash == ANISTS_Jump)
-            {
-                attackNockBackVector = new Vector2(dir * 1000, 2000);
-            }
-            else
-            {
-                attackNockBackVector = new Vector2(dir * 0, 500);
-            }
+            playerStatusManager.CalclateAttackNockBackVector(dir, stateInfo.fullPathHash);
         }
         else
         {
-            if(atkInputEnabled)
+            if (atkInputEnabled)
             {
                 atkInputEnabled = false;
                 atkInputNow = true;
-
-                //コンボエフェクト
-                // GameObject effect = Instantiate(comboEffect, 
-                //     transform.position + new Vector3(0, 2, 0) ,Quaternion.identity);
-                // Destroy(effect, 2);
-
-                if(stateInfo.fullPathHash == ANISTS_Attack_A)
-                {
-                    attackNockBackVector = new Vector2(dir * 0, 500);
-                }
-                if(stateInfo.fullPathHash == ANISTS_Attack_B)
-                {
-                    attackNockBackVector = new Vector2(dir * 1000, 2000);
-                }
+                playerStatusManager.CalclateAttackNockBackVector(dir, stateInfo.fullPathHash);
             }
         }
     }

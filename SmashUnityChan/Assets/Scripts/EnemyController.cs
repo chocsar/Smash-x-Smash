@@ -9,40 +9,73 @@ public class EnemyController : MonoBehaviour
     [System.NonSerialized] public Rigidbody2D rb2D;
     [System.NonSerialized] public Animator animator;
 
-    private float speedVx = 0.0f;
-    private bool addForceEnabled = false;
-    private float addForceStartTime = 0;
+    private bool smashAttackEnabled = false;
+    private float smashAttackStartTime = 0;
+    private Collider2D bodyCollider;
+    private bool ignoreLayerEnabled = false;
+    private float ignoreLayerStartTime = 0;
+
 
     void Awake()
     {
         rb2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
+        bodyCollider = GetComponentInChildren<Collider2D>();
     }
 
     public void FixedUpdate()
     {
-        if (addForceEnabled)
+        if(smashAttackEnabled)
         {
-            if (Time.fixedTime - addForceStartTime > 0.5f)
+            if(Time.fixedTime - smashAttackStartTime > 0.3f)
             {
-                addForceEnabled = false;
+                smashAttackEnabled = false;
+                rb2D.gravityScale = 10;
+                bodyCollider.sharedMaterial.bounciness = 0.3f;
+                bodyCollider.sharedMaterial.friction = 0.4f;
+                bodyCollider.enabled = false;
+                bodyCollider.enabled = true;
             }
         }
-        else
+
+        if(ignoreLayerEnabled)
         {
-            //rb2D.velocity = new Vector2(speedVx, rb2D.velocity.y);
+            if(Time.fixedTime - ignoreLayerStartTime > 0.1f)
+            {
+                ignoreLayerEnabled = false;
+                Physics2D.IgnoreLayerCollision(9, 10, false);
+                Physics2D.IgnoreLayerCollision(10, 10, false);
+            }
         }
-
-
     }
 
-    public void NockBack(Vector2 nockBackVector)
+    public void NockBack(Vector2 nockBackVector, bool isSmash, bool isLastAttack)
     {
-        rb2D.AddForce(nockBackVector, ForceMode2D.Force);
-        addForceEnabled = true;
-        addForceStartTime = Time.fixedTime;
+        rb2D.velocity = nockBackVector;
+
+        if(isLastAttack)
+        {
+            //当たり判定のマスク（壁ハメにならないようにするため）
+            ignoreLayerEnabled = true;
+            ignoreLayerStartTime = Time.fixedTime;
+            Physics2D.IgnoreLayerCollision(9, 10, true);
+            Physics2D.IgnoreLayerCollision(10, 10, true);
+
+            if(isSmash)
+            {
+                //吹っ飛びの制御
+                smashAttackEnabled = true;
+                smashAttackStartTime = Time.fixedTime;
+                rb2D.gravityScale = 0;
+                bodyCollider.sharedMaterial.bounciness = 1;
+                bodyCollider.sharedMaterial.friction = 0;
+                bodyCollider.enabled = false;
+                bodyCollider.enabled = true;
+            }  
+        } 
     }
+
     public void ActionDamage()
     {
         animator.SetTrigger("Damage");

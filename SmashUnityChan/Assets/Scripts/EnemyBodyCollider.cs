@@ -38,8 +38,13 @@ public class EnemyBodyCollider : MonoBehaviour
             {
                 attackHash = stateInfo.fullPathHash;
                 enemyCtrl.ActionDamage();
-                enemyCtrl.NockBack(playerCtrl.attackNockBackVector);
-
+                
+                enemyCtrl.NockBack
+                (
+                    playerStatusManager.attackNockBackVector,
+                    playerStatusManager.isSmash,
+                    playerStatusManager.isLastAttack
+                );
                 playerStatusManager.OnAttackHit();
             }
         }

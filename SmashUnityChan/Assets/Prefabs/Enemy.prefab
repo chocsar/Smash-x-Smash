@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 8455260634717393189}
   - component: {fileID: 8455260634717393188}
   - component: {fileID: 8455260634717393191}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Collider_Body
   m_TagString: EnemyBody
   m_Icon: {fileID: 0}
@@ -213,7 +213,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &8455260634821578332
 MonoBehaviour:

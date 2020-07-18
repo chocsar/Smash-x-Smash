@@ -8,7 +8,9 @@ public class PlayerStatusManager : MonoBehaviour
     //＝＝＝＝＝外部パラメータ（Inspector表示）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 
     //＝＝＝＝＝外部パラメータ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    [System.NonSerialized] public bool smashFlag = false; //trueでスマッシュモード
+    [System.NonSerialized] public bool isSmash = false; //trueでスマッシュモード
+    [System.NonSerialized] public bool isLastAttack = false;
+    [System.NonSerialized] public Vector2 attackNockBackVector = Vector2.zero;
 
     //＝＝＝＝＝キャッシュ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     public Text levelText; //レベル用のTextUI
@@ -33,7 +35,10 @@ public class PlayerStatusManager : MonoBehaviour
     private float prevGenerateEffectTime; //一つ前のエフェクト生成時刻
     private float totalExpGet; //攻撃により得られる経験値の累計
 
-   
+    private int conboLevel = 3; //コンボ攻撃の回数（1 ~ 3）
+    
+
+
     //＝＝＝＝＝コード（Monobehavior基本機能の実装）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     private void Awake()
     {
@@ -56,25 +61,25 @@ public class PlayerStatusManager : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     void Update()
     {
         //スマッシュモードの時
-        if(smashFlag)
+        if (isSmash)
         {
             //スマッシュゲージの時間減少
-            smashValue -= 20 * Time.deltaTime;
+            smashValue -= 10 * Time.deltaTime;
 
             //スマッシュモードの解除
-            if(smashValue < 0)
-            { 
+            if (smashValue < 0)
+            {
                 smashValue = 0;
                 extraSmashValue = 0;
 
-                smashFlag = false;
-                smashUIAnimator.SetBool("SmashMode", smashFlag);
+                isSmash = false;
+                smashUIAnimator.SetBool("SmashMode", isSmash);
             }
         }
         //スマッシュモードじゃない時
@@ -82,12 +87,12 @@ public class PlayerStatusManager : MonoBehaviour
         {
             //スマッシュゲージの時間減少
             smashValue -= 5 * Time.deltaTime;
-            if(smashValue < 0) smashValue = 0;
+            if (smashValue < 0) smashValue = 0;
         }
 
         //UI表示
         smashSlider.value = (int)smashValue;
-        
+
     }
 
 
@@ -97,33 +102,33 @@ public class PlayerStatusManager : MonoBehaviour
     {
         //経験値,スマッシュゲージ計算
         float expGet = 0;
-        if(smashFlag)
+        if (isSmash)
         {
             //経験値計算
-            expGet = basExpGet * (5 + extraSmashValue/20); //スマッシュ値によって5倍~に変動
-            
+            expGet = basExpGet * (5 + extraSmashValue / 20); //スマッシュ値によって5倍~に変動
+
             //スマッシュ値計算
             smashValue += basSmashGet;
-            if(smashValue >= 100) smashValue = 100;
+            if (smashValue >= 100) smashValue = 100;
             smashSlider.value = smashValue;
-            
+
             //EXスマッシュ値計算
             extraSmashValue += basSmashGet;
         }
         else
         {
             //経験値計算
-            expGet = basExpGet * (1 + smashValue/100); //スマッシュ値によって1倍~2倍に変動
-            
+            expGet = basExpGet * (1 + smashValue / 100); //スマッシュ値によって1倍~2倍に変動
+
             //スマッシュ値計算
             smashValue += basSmashGet;
-            if(smashValue >= 100)
+            if (smashValue >= 100)
             {
                 smashValue = 100;
 
                 //スマッシュモード
-                smashFlag = true;
-                smashUIAnimator.SetBool("SmashMode", smashFlag);
+                isSmash = true;
+                smashUIAnimator.SetBool("SmashMode", isSmash);
             }
             smashSlider.value = smashValue;
         }
@@ -142,10 +147,10 @@ public class PlayerStatusManager : MonoBehaviour
         expSlider.value = playerExp;
 
         //エフェクト表示  
-        if(Time.fixedTime > prevGenerateEffectTime + 0.1f)
+        if (Time.fixedTime > prevGenerateEffectTime + 0.1f)
         {
             prevGenerateEffectTime = Time.fixedTime;
-            GameObject generatedEffect = Instantiate(expEffect, transform.position + new Vector3(0, 2, 0) ,Quaternion.identity) as GameObject;
+            GameObject generatedEffect = Instantiate(expEffect, transform.position + new Vector3(0, 2, 0), Quaternion.identity) as GameObject;
             generatedExpEffectText = generatedEffect.GetComponentInChildren<Text>();
             totalExpGet = expGet;
         }
@@ -153,7 +158,7 @@ public class PlayerStatusManager : MonoBehaviour
         {
             totalExpGet += expGet;
         }
-        generatedExpEffectText.text = ((int)totalExpGet).ToString() + "EXP";   
+        generatedExpEffectText.text = ((int)totalExpGet).ToString() + "EXP";
 
     }
 
@@ -163,7 +168,7 @@ public class PlayerStatusManager : MonoBehaviour
         playerLevel++;
         requiredExp = CalculateRequiredExp(playerLevel);
 
-        while(extraExp > requiredExp) //同時に2以上レベルが上がる時の備えて、ループ処理
+        while (extraExp > requiredExp) //同時に2以上レベルが上がる時の備えて、ループ処理
         {
             playerLevel++;
             extraExp -= requiredExp;
@@ -180,19 +185,63 @@ public class PlayerStatusManager : MonoBehaviour
 
     private int CalculateRequiredExp(int level)
     {
-        float requiredExp = 100 * Mathf.Pow(1.1f, level-1); //初期値100、次のレベルで1.1倍
-        return  (int)requiredExp;
+        float requiredExp = 100 * Mathf.Pow(1.1f, level - 1); //初期値100、次のレベルで1.1倍
+        return (int)requiredExp;
     }
 
-    // private IEnumerator SmashMode()
-    // {
-    //     smashFlag = true;
-    //     smashUIAnimator.SetBool("SmashMode", smashFlag);
-    //     yield return new WaitForSeconds(10);
-    //     smashValue = 0;
-    //     smashSlider.value = 0;
-    //     smashFlag = false;
-    //     smashUIAnimator.SetBool("SmashMode", smashFlag);
-    // }
+    public void CalclateAttackNockBackVector(float dir, int ANISTS)
+    {
+        Vector2 nockBack = Vector2.zero;
+        if(ANISTS == PlayerController.ANISTS_Attack_A)
+        {
+            //攻撃B
+            if(conboLevel == 2)
+            {  
+                isLastAttack = true;
+                nockBack = new Vector2(dir * 20, 20);
+            }
+            else
+            {
+                isLastAttack = false;
+                nockBack = new Vector2(dir * 0, 15);
+            }
+        }
+        else if(ANISTS == PlayerController.ANISTS_Attack_B)
+        {
+            //攻撃C
+            isLastAttack = true;
+            nockBack = new Vector2(dir * 30, 30);
+         
+        }
+        else if(ANISTS == PlayerController.ANISTS_Jump)
+        {
+            //ジャンプ攻撃
+            isLastAttack = true;
+            nockBack = new Vector2(dir * 30, 30);
+        }
+        else
+        {
+            //攻撃A
+            if(conboLevel == 1)
+            {  
+                isLastAttack = true;
+                nockBack = new Vector2(dir * 15, 15);
+            }
+            else
+            {
+                isLastAttack = false;
+                nockBack = new Vector2(dir * 0, 15);
+            }
+        }
+
+        if(isSmash && isLastAttack) 
+        {
+            //スマッシュモードなら吹っ飛び力UP
+            nockBack *= Mathf.Min(1 + extraSmashValue/1000, 1.5f); //最大1.5倍まで
+        }
+
+        attackNockBackVector = nockBack;
+    }
+
 
 }
