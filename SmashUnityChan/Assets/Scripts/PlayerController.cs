@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     //＝＝＝外部パラメータ（Inspector表示）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     public float speed = 10.0f;
-    public GameObject comboEffect;
+    //public GameObject comboEffect;
 
     //＝＝＝外部パラメータ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     [System.NonSerialized] public float dir = 1.0f;
@@ -306,9 +306,9 @@ public class PlayerController : MonoBehaviour
                 atkInputNow = true;
 
                 //コンボエフェクト
-                GameObject effect = Instantiate(comboEffect, 
-                    transform.position + new Vector3(0, 2, 0) ,Quaternion.identity);
-                Destroy(effect, 2);
+                // GameObject effect = Instantiate(comboEffect, 
+                //     transform.position + new Vector3(0, 2, 0) ,Quaternion.identity);
+                // Destroy(effect, 2);
 
                 if(stateInfo.fullPathHash == ANISTS_Attack_A)
                 {
