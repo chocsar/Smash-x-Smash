@@ -158,7 +158,7 @@ public class PlayerStatusManager : MonoBehaviour
         {
             totalExpGet += expGet;
         }
-        generatedExpEffectText.text = ((int)totalExpGet).ToString() + "EXP";
+        generatedExpEffectText.text = "<size=2>" + ((int)totalExpGet).ToString() + "</size><size=1>EXP</size>";
 
     }
 
