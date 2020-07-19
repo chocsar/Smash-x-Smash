@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class WallController : MonoBehaviour
 {
     public GameObject expEffect;
+    public GameObject ringEffect;
     private Animator animator;
 
     private PlayerStatusManager playerStatusManager;
@@ -41,6 +42,8 @@ public class WallController : MonoBehaviour
             Text effectText = effect.GetComponentInChildren<Text>();
             effectText.text = "<size=2>" + ((int)expGain).ToString() + "</size><size=1>EXP</size>";
             effectText.rectTransform.localScale = new Vector3(0.3f, 0.3f, 1);
+
+            Instantiate(ringEffect, effectPosition, Quaternion.identity);
         }
 
         //EXP反映

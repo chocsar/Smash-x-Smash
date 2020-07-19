@@ -77,6 +77,8 @@ public class EnemyController : MonoBehaviour
                 bodyCollider.enabled = true;
             }  
         } 
+
+
     }
 
     public void ActionDamage()
@@ -84,7 +86,6 @@ public class EnemyController : MonoBehaviour
         animator.SetTrigger("Damage");
 
         //ヒットエフェクト
-        // GameObject hitObject = Instantiate(hitEffect, transform.position, Quaternion.identity);
-        // Destroy(hitObject, 2);
+        GameObject hitObject = Instantiate(hitEffect, transform.position, Quaternion.identity);
     }
 }
