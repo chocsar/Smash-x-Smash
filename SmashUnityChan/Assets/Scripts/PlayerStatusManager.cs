@@ -38,7 +38,7 @@ public class PlayerStatusManager : MonoBehaviour
 
     private int conboLevel = 3; //コンボ攻撃の回数（1 ~ 3）
     private float basNocBackPower = 20;
-    
+
 
 
     //＝＝＝＝＝コード（Monobehavior基本機能の実装）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
@@ -100,39 +100,17 @@ public class PlayerStatusManager : MonoBehaviour
 
 
     //＝＝＝＝＝コード（サポート関数）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    public void OnAttackHit()
+    public float GetExp()
     {
-        //経験値,スマッシュゲージ計算
+        //経験値の計算
         float expGet = 0;
         if (isSmash)
         {
-            //経験値計算
             expGet = basExpGet * (5 + extraSmashValue / 20); //スマッシュ値によって5倍~に変動
-
-            //スマッシュ値計算
-            smashValue += basSmashGet;
-            if (smashValue >= 100) smashValue = 100;
-            smashSlider.value = smashValue;
-
-            //EXスマッシュ値計算
-            extraSmashValue += basSmashGet;
         }
         else
         {
-            //経験値計算
             expGet = basExpGet * (1 + smashValue / 100); //スマッシュ値によって1倍~2倍に変動
-
-            //スマッシュ値計算
-            smashValue += basSmashGet;
-            if (smashValue >= 100)
-            {
-                smashValue = 100;
-
-                //スマッシュモード
-                isSmash = true;
-                smashUIAnimator.SetBool("SmashMode", isSmash);
-            }
-            smashSlider.value = smashValue;
         }
 
         //経験値を加算
@@ -162,6 +140,52 @@ public class PlayerStatusManager : MonoBehaviour
         }
         generatedExpEffectText.text = "<size=2>" + ((int)totalExpGet).ToString() + "</size><size=1>EXP</size>";
 
+        return expGet;
+    }
+
+    public void GetExpFromWall(float expGain)
+    {
+        //経験値を加算
+        playerExp += (int)expGain;
+        totalPlayerExp += (int)expGain;
+
+        //レベルアップ処理
+        if (playerExp >= requiredExp)
+        {
+            LevelUp(playerExp - requiredExp);
+        }
+
+        //UI表示
+        expSlider.value = playerExp;
+    }
+
+    public void GetSmash()
+    {
+        //スマッシュゲージ計算
+        if (isSmash)
+        {
+            //スマッシュ値計算
+            smashValue += basSmashGet;
+            if (smashValue >= 100) smashValue = 100;
+            smashSlider.value = smashValue;
+
+            //EXスマッシュ値計算
+            extraSmashValue += basSmashGet;
+        }
+        else
+        {
+            //スマッシュ値計算
+            smashValue += basSmashGet;
+            if (smashValue >= 100)
+            {
+                smashValue = 100;
+
+                //スマッシュモード
+                isSmash = true;
+                smashUIAnimator.SetBool("SmashMode", isSmash);
+            }
+            smashSlider.value = smashValue;
+        }
     }
 
     private void LevelUp(int extraExp)
@@ -196,12 +220,12 @@ public class PlayerStatusManager : MonoBehaviour
         Vector2 nockBack = Vector2.zero;
 
         //ラストアタックかどうか判定
-        if(ANISTS == PlayerController.ANISTS_Attack_B || ANISTS == PlayerController.ANISTS_Jump)
+        if (ANISTS == PlayerController.ANISTS_Attack_B || ANISTS == PlayerController.ANISTS_Jump)
         {
             //攻撃Cとジャンプ攻撃
-            isLastAttack = true; 
+            isLastAttack = true;
         }
-        else if(ANISTS == PlayerController.ANISTS_Attack_A)
+        else if (ANISTS == PlayerController.ANISTS_Attack_A)
         {
             //攻撃B
             isLastAttack = (conboLevel == 2) ? true : false;
@@ -213,20 +237,20 @@ public class PlayerStatusManager : MonoBehaviour
         }
 
         //ノックバック速度の計算
-        if(isLastAttack)
+        if (isLastAttack)
         {
-            if(isSmash)
+            if (isSmash)
             {
-                nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI/4), Mathf.Sin(Mathf.PI/4)) *
-                    basNocBackPower * Mathf.Min(1.2f + extraSmashValue/100, 10.0f); 
-                
-                nockBackTimer = Mathf.Min(0.1f + extraSmashValue/1000, 1.0f);
+                nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI / 4), Mathf.Sin(Mathf.PI / 4)) *
+                    basNocBackPower * Mathf.Min(1.2f + extraSmashValue / 100, 10.0f);
+
+                nockBackTimer = Mathf.Min(0.1f + extraSmashValue / 1000, 1.0f);
             }
             else
             {
-                nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI/4), Mathf.Sin(Mathf.PI/4)) *
-                    basNocBackPower * (1 + smashValue/500); //1~1.2倍まで変動
-                
+                nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI / 4), Mathf.Sin(Mathf.PI / 4)) *
+                    basNocBackPower * (1 + smashValue / 500); //1~1.2倍まで変動
+
                 nockBackTimer = 0;
             }
         }

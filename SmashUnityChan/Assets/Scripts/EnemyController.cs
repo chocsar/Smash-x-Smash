@@ -9,8 +9,10 @@ public class EnemyController : MonoBehaviour
     [System.NonSerialized] public Rigidbody2D rb2D;
     [System.NonSerialized] public Animator animator;
 
-    private bool nockBackEnabled = false;
-    private float nockBackStartTime = 0;
+    [System.NonSerialized] public bool nockBackEnabled = false;
+    [System.NonSerialized] public float expGain = 0;
+
+    [System.NonSerialized] public float nockBackStartTime = 0;
     private Collider2D bodyCollider;
     private bool ignoreLayerEnabled = false;
     private float ignoreLayerStartTime = 0;
@@ -46,7 +48,6 @@ public class EnemyController : MonoBehaviour
             {
                 ignoreLayerEnabled = false;
                 Physics2D.IgnoreLayerCollision(9, 10, false);
-                //Physics2D.IgnoreLayerCollision(10, 10, false);
             }
         }
     }
@@ -60,8 +61,7 @@ public class EnemyController : MonoBehaviour
             //当たり判定のマスク（壁ハメにならないようにするため）
             ignoreLayerEnabled = true;
             ignoreLayerStartTime = Time.fixedTime;
-            Physics2D.IgnoreLayerCollision(9, 10, true);
-            //Physics2D.IgnoreLayerCollision(10, 10, true);
+            Physics2D.IgnoreLayerCollision(9, 10, true); //PlayerBodyとEnemyBody
 
             if(isSmash)
             {

@@ -46,7 +46,8 @@ public class EnemyBodyCollider : MonoBehaviour
                     playerStatusManager.isLastAttack,
                     playerStatusManager.nockBackTimer
                 );
-                playerStatusManager.OnAttackHit();
+                enemyCtrl.expGain = playerStatusManager.GetExp();
+                playerStatusManager.GetSmash();
             }
         }
     }

@@ -875,6 +875,7 @@ GameObject:
   m_Component:
   - component: {fileID: 777219281}
   - component: {fileID: 777219282}
+  - component: {fileID: 777219283}
   m_Layer: 0
   m_Name: Collider_Left
   m_TagString: Untagged
@@ -922,6 +923,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 10}
   m_EdgeRadius: 0
+--- !u!114 &777219283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777219280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d88d5170458cb48ecbd804b8e85421c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallState: 3
 --- !u!1 &824670643
 GameObject:
   m_ObjectHideFlags: 0
@@ -932,6 +946,7 @@ GameObject:
   m_Component:
   - component: {fileID: 824670644}
   - component: {fileID: 824670645}
+  - component: {fileID: 824670646}
   m_Layer: 0
   m_Name: Collider_Up
   m_TagString: Untagged
@@ -979,6 +994,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 22, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &824670646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824670643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d88d5170458cb48ecbd804b8e85421c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallState: 0
 --- !u!1 &835395277
 GameObject:
   m_ObjectHideFlags: 0
@@ -989,6 +1017,7 @@ GameObject:
   m_Component:
   - component: {fileID: 835395278}
   - component: {fileID: 835395279}
+  - component: {fileID: 835395280}
   m_Layer: 0
   m_Name: Collider_Down
   m_TagString: Untagged
@@ -1036,6 +1065,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 22, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &835395280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835395277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d88d5170458cb48ecbd804b8e85421c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallState: 1
 --- !u!1 &941132735
 GameObject:
   m_ObjectHideFlags: 0
@@ -1929,6 +1971,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1812952534}
   - component: {fileID: 1812952535}
+  - component: {fileID: 1812952536}
   m_Layer: 0
   m_Name: Collider_Right
   m_TagString: Untagged
@@ -1976,6 +2019,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 10}
   m_EdgeRadius: 0
+--- !u!114 &1812952536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1812952533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d88d5170458cb48ecbd804b8e85421c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallState: 2
 --- !u!1001 &1836589484
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2232,8 +2288,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1897628202}
+  - component: {fileID: 1897628203}
+  - component: {fileID: 1897628204}
   m_Layer: 0
-  m_Name: Stage
+  m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2247,7 +2305,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1897628201}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.000015258789, z: 0}
+  m_LocalPosition: {x: 0, y: 0.00001525879, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2143000480}
@@ -2258,6 +2316,39 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1897628203
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1897628201}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: eea646b44caae44e79c64a5d973e70b9, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1897628204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1897628201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49998102e360c4fb28b9c79ab6215a18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  expEffect: {fileID: 5614320580665428227, guid: 55391f7f0df3646cb839d446ccc4dc3c,
+    type: 3}
 --- !u!1 &1981723885
 GameObject:
   m_ObjectHideFlags: 0
@@ -2348,7 +2439,7 @@ GameObject:
   - component: {fileID: 2143000480}
   - component: {fileID: 2143000479}
   m_Layer: 0
-  m_Name: StageSprite
+  m_Name: WallSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2639,7 +2730,7 @@ PrefabInstance:
     - target: {fileID: 6051087843745056664, guid: 55391f7f0df3646cb839d446ccc4dc3c,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 55391f7f0df3646cb839d446ccc4dc3c, type: 3}
