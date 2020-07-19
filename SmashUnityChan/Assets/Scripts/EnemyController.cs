@@ -9,12 +9,12 @@ public class EnemyController : MonoBehaviour
     [System.NonSerialized] public Rigidbody2D rb2D;
     [System.NonSerialized] public Animator animator;
 
-    private bool smashAttackEnabled = false;
-    private float smashAttackStartTime = 0;
+    private bool nockBackEnabled = false;
+    private float nockBackStartTime = 0;
     private Collider2D bodyCollider;
     private bool ignoreLayerEnabled = false;
     private float ignoreLayerStartTime = 0;
-
+    private float nockBackTimer = 0;
 
     void Awake()
     {
@@ -26,11 +26,12 @@ public class EnemyController : MonoBehaviour
 
     public void FixedUpdate()
     {
-        if(smashAttackEnabled)
+        if(nockBackEnabled)
         {
-            if(Time.fixedTime - smashAttackStartTime > 0.3f)
+            if(Time.fixedTime - nockBackStartTime > nockBackTimer)
             {
-                smashAttackEnabled = false;
+                nockBackEnabled = false;
+                nockBackTimer = 0;
                 rb2D.gravityScale = 10;
                 bodyCollider.sharedMaterial.bounciness = 0.3f;
                 bodyCollider.sharedMaterial.friction = 0.4f;
@@ -41,16 +42,16 @@ public class EnemyController : MonoBehaviour
 
         if(ignoreLayerEnabled)
         {
-            if(Time.fixedTime - ignoreLayerStartTime > 0.1f)
+            if(Time.fixedTime - ignoreLayerStartTime > nockBackTimer)
             {
                 ignoreLayerEnabled = false;
                 Physics2D.IgnoreLayerCollision(9, 10, false);
-                Physics2D.IgnoreLayerCollision(10, 10, false);
+                //Physics2D.IgnoreLayerCollision(10, 10, false);
             }
         }
     }
 
-    public void NockBack(Vector2 nockBackVector, bool isSmash, bool isLastAttack)
+    public void NockBack(Vector2 nockBackVector, bool isSmash, bool isLastAttack, float timer)
     {
         rb2D.velocity = nockBackVector;
 
@@ -60,13 +61,15 @@ public class EnemyController : MonoBehaviour
             ignoreLayerEnabled = true;
             ignoreLayerStartTime = Time.fixedTime;
             Physics2D.IgnoreLayerCollision(9, 10, true);
-            Physics2D.IgnoreLayerCollision(10, 10, true);
+            //Physics2D.IgnoreLayerCollision(10, 10, true);
 
             if(isSmash)
             {
                 //吹っ飛びの制御
-                smashAttackEnabled = true;
-                smashAttackStartTime = Time.fixedTime;
+                nockBackEnabled = true;
+                nockBackStartTime = Time.fixedTime;
+                nockBackTimer = timer;
+
                 rb2D.gravityScale = 0;
                 bodyCollider.sharedMaterial.bounciness = 1;
                 bodyCollider.sharedMaterial.friction = 0;

@@ -43,7 +43,8 @@ public class EnemyBodyCollider : MonoBehaviour
                 (
                     playerStatusManager.attackNockBackVector,
                     playerStatusManager.isSmash,
-                    playerStatusManager.isLastAttack
+                    playerStatusManager.isLastAttack,
+                    playerStatusManager.nockBackTimer
                 );
                 playerStatusManager.OnAttackHit();
             }

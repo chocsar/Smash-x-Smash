@@ -11,6 +11,7 @@ public class PlayerStatusManager : MonoBehaviour
     [System.NonSerialized] public bool isSmash = false; //trueでスマッシュモード
     [System.NonSerialized] public bool isLastAttack = false;
     [System.NonSerialized] public Vector2 attackNockBackVector = Vector2.zero;
+    [System.NonSerialized] public float nockBackTimer = 0.2f;
 
     //＝＝＝＝＝キャッシュ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     public Text levelText; //レベル用のTextUI
@@ -36,6 +37,7 @@ public class PlayerStatusManager : MonoBehaviour
     private float totalExpGet; //攻撃により得られる経験値の累計
 
     private int conboLevel = 3; //コンボ攻撃の回数（1 ~ 3）
+    private float basNocBackPower = 20;
     
 
 
@@ -192,52 +194,45 @@ public class PlayerStatusManager : MonoBehaviour
     public void CalclateAttackNockBackVector(float dir, int ANISTS)
     {
         Vector2 nockBack = Vector2.zero;
-        if(ANISTS == PlayerController.ANISTS_Attack_A)
+
+        //ラストアタックかどうか判定
+        if(ANISTS == PlayerController.ANISTS_Attack_B || ANISTS == PlayerController.ANISTS_Jump)
+        {
+            //攻撃Cとジャンプ攻撃
+            isLastAttack = true; 
+        }
+        else if(ANISTS == PlayerController.ANISTS_Attack_A)
         {
             //攻撃B
-            if(conboLevel == 2)
-            {  
-                isLastAttack = true;
-                nockBack = new Vector2(dir * 20, 20);
-            }
-            else
-            {
-                isLastAttack = false;
-                nockBack = new Vector2(dir * 0, 15);
-            }
-        }
-        else if(ANISTS == PlayerController.ANISTS_Attack_B)
-        {
-            //攻撃C
-            isLastAttack = true;
-            nockBack = new Vector2(dir * 30, 30);
-         
-        }
-        else if(ANISTS == PlayerController.ANISTS_Jump)
-        {
-            //ジャンプ攻撃
-            isLastAttack = true;
-            nockBack = new Vector2(dir * 30, 30);
+            isLastAttack = (conboLevel == 2) ? true : false;
         }
         else
         {
             //攻撃A
-            if(conboLevel == 1)
-            {  
-                isLastAttack = true;
-                nockBack = new Vector2(dir * 15, 15);
+            isLastAttack = (conboLevel == 1) ? true : false;
+        }
+
+        //ノックバック速度の計算
+        if(isLastAttack)
+        {
+            if(isSmash)
+            {
+                nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI/4), Mathf.Sin(Mathf.PI/4)) *
+                    basNocBackPower * Mathf.Min(1.2f + extraSmashValue/100, 10.0f); 
+                
+                nockBackTimer = Mathf.Min(0.1f + extraSmashValue/1000, 1.0f);
             }
             else
             {
-                isLastAttack = false;
-                nockBack = new Vector2(dir * 0, 15);
+                nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI/4), Mathf.Sin(Mathf.PI/4)) *
+                    basNocBackPower * (1 + smashValue/500); //1~1.2倍まで変動
+                
+                nockBackTimer = 0;
             }
         }
-
-        if(isSmash && isLastAttack) 
+        else
         {
-            //スマッシュモードなら吹っ飛び力UP
-            nockBack *= Mathf.Min(1 + extraSmashValue/1000, 1.5f); //最大1.5倍まで
+            nockBack = new Vector2(0, 1) * 15;
         }
 
         attackNockBackVector = nockBack;
