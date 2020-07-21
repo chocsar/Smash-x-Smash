@@ -857,7 +857,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1000
+  m_MaxValue: 100
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -2047,7 +2047,7 @@ PrefabInstance:
     - target: {fileID: 8455260634821578320, guid: dad17a35b1d6947e9a6e411dc706c4da,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8455260634821578333, guid: dad17a35b1d6947e9a6e411dc706c4da,
         type: 3}
@@ -2421,7 +2421,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Lv.100
+  m_Text: Lv.1
 --- !u!222 &1981723888
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2825,7 +2825,7 @@ PrefabInstance:
     - target: {fileID: 8455260634821578320, guid: dad17a35b1d6947e9a6e411dc706c4da,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8455260634821578333, guid: dad17a35b1d6947e9a6e411dc706c4da,
         type: 3}

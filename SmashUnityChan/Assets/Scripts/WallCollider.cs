@@ -22,21 +22,23 @@ public class WallCollider : MonoBehaviour
         {
             EnemyController enemyCtrl = col.gameObject.GetComponent<EnemyController>();
 
-            if (enemyCtrl.nockBackEnabled) 
+            if (enemyCtrl.isSmashNockBack) 
             {
-                if(wallState != WallState.Down)
+                //攻撃直後のCollider_Downとの判定を避ける
+                if(wallState == WallState.Down)
                 {
-                    enemyCtrl.expGain *= 0.5f;
-                    wallController.Shake(wallState, col.gameObject.transform.position, enemyCtrl.expGain);
-                }
-                else
-                {
-                    if(Time.fixedTime - enemyCtrl.nockBackStartTime > 0.1f) //攻撃直後にCollider_Downとの判定を避けるため
+                    if(Time.fixedTime - enemyCtrl.nockBackStartTime > 0.1f) 
                     {
                         enemyCtrl.expGain *= 0.5f;
                         wallController.Shake(wallState, col.gameObject.transform.position, enemyCtrl.expGain);
                     }
                 }
+                else
+                {
+                    enemyCtrl.expGain *= 0.5f;
+                    wallController.Shake(wallState, col.gameObject.transform.position, enemyCtrl.expGain);
+                }
+
             }
         }
     }

@@ -10,6 +10,7 @@ public class EnemyController : MonoBehaviour
     [System.NonSerialized] public Animator animator;
 
     [System.NonSerialized] public bool nockBackEnabled = false;
+    [System.NonSerialized] public bool isSmashNockBack = false;
     [System.NonSerialized] public float expGain = 0;
 
     [System.NonSerialized] public float nockBackStartTime = 0;
@@ -17,6 +18,7 @@ public class EnemyController : MonoBehaviour
     private bool ignoreLayerEnabled = false;
     private float ignoreLayerStartTime = 0;
     private float nockBackTimer = 0;
+    private float ignoreLayerTimer = 0;
 
     void Awake()
     {
@@ -39,12 +41,14 @@ public class EnemyController : MonoBehaviour
                 bodyCollider.sharedMaterial.friction = 0.4f;
                 bodyCollider.enabled = false;
                 bodyCollider.enabled = true;
+
+                isSmashNockBack = false;
             }
         }
 
         if(ignoreLayerEnabled)
         {
-            if(Time.fixedTime - ignoreLayerStartTime > nockBackTimer)
+            if(Time.fixedTime - ignoreLayerStartTime > ignoreLayerTimer)
             {
                 ignoreLayerEnabled = false;
                 Physics2D.IgnoreLayerCollision(9, 10, false);
@@ -58,24 +62,26 @@ public class EnemyController : MonoBehaviour
 
         if(isLastAttack)
         {
+            //吹っ飛びの制御
+            nockBackEnabled = true;
+            nockBackStartTime = Time.fixedTime;
+            nockBackTimer = timer;
+
+            rb2D.gravityScale = 0;
+            bodyCollider.sharedMaterial.bounciness = 1;
+            bodyCollider.sharedMaterial.friction = 0;
+            bodyCollider.enabled = false;
+            bodyCollider.enabled = true;
+
+
             //当たり判定のマスク（壁ハメにならないようにするため）
             ignoreLayerEnabled = true;
             ignoreLayerStartTime = Time.fixedTime;
+            ignoreLayerTimer = timer;
             Physics2D.IgnoreLayerCollision(9, 10, true); //PlayerBodyとEnemyBody
 
-            if(isSmash)
-            {
-                //吹っ飛びの制御
-                nockBackEnabled = true;
-                nockBackStartTime = Time.fixedTime;
-                nockBackTimer = timer;
-
-                rb2D.gravityScale = 0;
-                bodyCollider.sharedMaterial.bounciness = 1;
-                bodyCollider.sharedMaterial.friction = 0;
-                bodyCollider.enabled = false;
-                bodyCollider.enabled = true;
-            }  
+            //スマッシュモードかどうか
+            if(isSmash) isSmashNockBack = true;
         } 
 
 

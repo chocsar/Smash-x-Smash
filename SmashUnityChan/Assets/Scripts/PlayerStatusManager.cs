@@ -11,7 +11,7 @@ public class PlayerStatusManager : MonoBehaviour
     [System.NonSerialized] public bool isSmash = false; //trueでスマッシュモード
     [System.NonSerialized] public bool isLastAttack = false;
     [System.NonSerialized] public Vector2 attackNockBackVector = Vector2.zero;
-    [System.NonSerialized] public float nockBackTimer = 0.2f;
+    [System.NonSerialized] public float nockBackTimer = 0.1f;
 
     //＝＝＝＝＝キャッシュ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     public Text levelText; //レベル用のTextUI
@@ -25,19 +25,25 @@ public class PlayerStatusManager : MonoBehaviour
     private int playerLevel = 1; //今のレベル
     private int playerExp = 0; //今のレベルにおける経験値量 
     private int totalPlayerExp = 0; //経験値の総量
+
     private int requiredExp; //次のレベルアップに必要な経験値
+    
     private float smashValue; //今のスマッシュ値（0 ~ 100）
     private float extraSmashValue; //スマッシュモード中も加算されるEXスマッシュ値
 
     private float basExpGet = 10; //攻撃により得られる経験値
     private float basSmashGet = 10; //攻撃により得られるスマッシュ値
+    private float lossSmash = 5; //スマッシュ値の時間減少
+    private float lossSmashInSmashMode = 15; //スマッシュ値の時間減少（スマッシュモード時）
+
+    private int conboLevel = 3; //コンボ攻撃の回数（1 ~ 3）
+    
+    private float basNocBackPower = 10; //ノックバックの基本速度
+    //public float nockBackTimer_Debug = 0.1f;
 
     private Text generatedExpEffectText; //生成したエフェクトのTextへの参照
     private float prevGenerateEffectTime; //一つ前のエフェクト生成時刻
     private float totalExpGet; //攻撃により得られる経験値の累計
-
-    private int conboLevel = 3; //コンボ攻撃の回数（1 ~ 3）
-    private float basNocBackPower = 20;
 
 
 
@@ -72,7 +78,7 @@ public class PlayerStatusManager : MonoBehaviour
         if (isSmash)
         {
             //スマッシュゲージの時間減少
-            smashValue -= 10 * Time.deltaTime;
+            smashValue -= lossSmashInSmashMode * Time.deltaTime;
 
             //スマッシュモードの解除
             if (smashValue < 0)
@@ -88,7 +94,7 @@ public class PlayerStatusManager : MonoBehaviour
         else
         {
             //スマッシュゲージの時間減少
-            smashValue -= 5 * Time.deltaTime;
+            smashValue -= lossSmash * Time.deltaTime;
             if (smashValue < 0) smashValue = 0;
         }
 
@@ -211,7 +217,7 @@ public class PlayerStatusManager : MonoBehaviour
 
     private int CalculateRequiredExp(int level)
     {
-        float requiredExp = 100 * Mathf.Pow(1.1f, level - 1); //初期値100、次のレベルで1.1倍
+        float requiredExp = 100 * Mathf.Pow(1.1f, level - 1) + 100 * (level - 1); //初期値100、次のレベルで1.1倍
         return (int)requiredExp;
     }
 
@@ -236,22 +242,22 @@ public class PlayerStatusManager : MonoBehaviour
             isLastAttack = (conboLevel == 1) ? true : false;
         }
 
-        //ノックバック速度の計算
+        //ノックバック速度・時間の計算
         if (isLastAttack)
         {
             if (isSmash)
             {
                 nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI / 4), Mathf.Sin(Mathf.PI / 4)) *
-                    basNocBackPower * Mathf.Min(1.2f + extraSmashValue / 100, 10.0f);
+                    basNocBackPower * Mathf.Min(2f + extraSmashValue / 100, 10.0f); //2~10倍まで変動
 
-                nockBackTimer = Mathf.Min(0.1f + extraSmashValue / 1000, 1.0f);
+                nockBackTimer = (nockBack.magnitude <= 30) ? 0.1f : nockBack.magnitude/100 - 0.2f; //最大でも1sくらいにする？
             }
             else
             {
                 nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI / 4), Mathf.Sin(Mathf.PI / 4)) *
-                    basNocBackPower * (1 + smashValue / 500); //1~1.2倍まで変動
+                    basNocBackPower * (1 + smashValue / 100); //1~2倍まで変動
 
-                nockBackTimer = 0;
+                nockBackTimer = 0.1f;
             }
         }
         else
@@ -260,6 +266,12 @@ public class PlayerStatusManager : MonoBehaviour
         }
 
         attackNockBackVector = nockBack;
+        
+        //デバッグ用
+        //isLastAttack = true;
+        //nockBackTimer = nockBackTimer_Debug;
+        //attackNockBackVector = new Vector2(dir * Mathf.Cos(Mathf.PI / 4), Mathf.Sin(Mathf.PI / 4)) * basNocBackPower;
+
     }
 
 
