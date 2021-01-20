@@ -689,6 +689,7 @@ MonoBehaviour:
   levelText: {fileID: 1981723887}
   expSlider: {fileID: 747881017}
   smashSlider: {fileID: 1846302797}
+  smashUIAnimator: {fileID: 1106183958}
   expEffect: {fileID: 5614320580665428227, guid: 55391f7f0df3646cb839d446ccc4dc3c,
     type: 3}
 --- !u!1 &496143435

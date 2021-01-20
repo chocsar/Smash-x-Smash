@@ -30,9 +30,9 @@ public class EnemyController : MonoBehaviour
 
     public void FixedUpdate()
     {
-        if(nockBackEnabled)
+        if (nockBackEnabled)
         {
-            if(Time.fixedTime - nockBackStartTime > nockBackTimer)
+            if (Time.fixedTime - nockBackStartTime > nockBackTimer)
             {
                 nockBackEnabled = false;
                 nockBackTimer = 0;
@@ -46,9 +46,9 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        if(ignoreLayerEnabled)
+        if (ignoreLayerEnabled)
         {
-            if(Time.fixedTime - ignoreLayerStartTime > ignoreLayerTimer)
+            if (Time.fixedTime - ignoreLayerStartTime > ignoreLayerTimer)
             {
                 ignoreLayerEnabled = false;
                 Physics2D.IgnoreLayerCollision(9, 10, false);
@@ -60,7 +60,7 @@ public class EnemyController : MonoBehaviour
     {
         rb2D.velocity = nockBackVector;
 
-        if(isLastAttack)
+        if (isLastAttack)
         {
             //吹っ飛びの制御
             nockBackEnabled = true;
@@ -81,8 +81,8 @@ public class EnemyController : MonoBehaviour
             Physics2D.IgnoreLayerCollision(9, 10, true); //PlayerBodyとEnemyBody
 
             //スマッシュモードかどうか
-            if(isSmash) isSmashNockBack = true;
-        } 
+            if (isSmash) isSmashNockBack = true;
+        }
 
 
     }

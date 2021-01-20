@@ -14,25 +14,23 @@ public class PlayerStatusManager : MonoBehaviour
     [System.NonSerialized] public float nockBackTimer = 0.1f;
 
     //＝＝＝＝＝キャッシュ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    public Text levelText; //レベル用のTextUI
-    public Slider expSlider; //経験値用のSliderUI
-    public Slider smashSlider; //スマッシュゲージ用のSliderUI
-    private Animator smashUIAnimator; //スマッシュゲージのアニメータ
-
-    public GameObject expEffect; //ヒット時の経験値エフェクト
+    [SerializeField] private Text levelText; //レベル用のTextUI
+    [SerializeField] private Slider expSlider; //経験値用のSliderUI
+    [SerializeField] private Slider smashSlider; //スマッシュゲージ用のSliderUI
+    [SerializeField] private Animator smashUIAnimator; //スマッシュゲージのアニメータ
+    [SerializeField] private GameObject expEffect; //ヒット時の経験値エフェクト
 
     //＝＝＝＝＝内部パラメータ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     private int playerLevel = 1; //今のレベル
     private int playerExp = 0; //今のレベルにおける経験値量 
     private int totalPlayerExp = 0; //経験値の総量
-
     private int requiredExp; //次のレベルアップに必要な経験値
 
     private float smashValue; //今のスマッシュ値（0 ~ 100）
     private float extraSmashValue; //スマッシュモード中も加算されるEXスマッシュ値
 
-    private float basExpGet = 10; //攻撃により得られる経験値
-    private float basSmashGet = 10; //攻撃により得られるスマッシュ値
+    private float basExpGet = 10; //攻撃により得られる基本経験値
+    private float basSmashGet = 10; //攻撃により得られる基本スマッシュ値
     private float lossSmash = 5; //スマッシュ値の時間減少
     private float lossSmashInSmashMode = 15; //スマッシュ値の時間減少（スマッシュモード時）
 
@@ -56,19 +54,12 @@ public class PlayerStatusManager : MonoBehaviour
         //次のレベルアップに必要な経験値の計算
         requiredExp = CalculateRequiredExp(playerLevel);
 
-        //経験値スライダーの設定
+        //経験値Sliderの設定
         expSlider.maxValue = requiredExp;
         expSlider.value = playerExp;
 
-        //スマッシュスライダーの設定
+        //スマッシュSliderの設定
         smashSlider.value = 0;
-
-        //キャッシュ
-        smashUIAnimator = smashSlider.transform.parent.GetComponent<Animator>();
-    }
-
-    void Start()
-    {
 
     }
 
@@ -132,7 +123,7 @@ public class PlayerStatusManager : MonoBehaviour
         //UI表示
         expSlider.value = playerExp;
 
-        //エフェクト表示  
+        //エフェクト表示
         if (Time.fixedTime > prevGenerateEffectTime + 0.1f)
         {
             prevGenerateEffectTime = Time.fixedTime;
@@ -212,7 +203,7 @@ public class PlayerStatusManager : MonoBehaviour
         expSlider.maxValue = requiredExp;
 
         //余り分を今の経験値量に反映
-        playerExp = extraExp; //あまり分を今の経験値量に反映
+        playerExp = extraExp;
     }
 
     private int CalculateRequiredExp(int level)
@@ -221,17 +212,18 @@ public class PlayerStatusManager : MonoBehaviour
         return (int)requiredExp;
     }
 
-    public void CalclateAttackNockBackVector(float dir, int ANISTS)
+    public void CalclateAttackNockBackVector(float dir, int animationHash)
     {
         Vector2 nockBack = Vector2.zero;
 
         //ラストアタックかどうか判定
-        if (ANISTS == PlayerAnimationHash.AttackB || ANISTS == PlayerAnimationHash.Jump)
+        if (animationHash == PlayerAnimationHash.AttackB ||
+            animationHash == PlayerAnimationHash.Jump)
         {
             //攻撃Cとジャンプ攻撃
             isLastAttack = true;
         }
-        else if (ANISTS == PlayerAnimationHash.AttackA)
+        else if (animationHash == PlayerAnimationHash.AttackA)
         {
             //攻撃B
             isLastAttack = (conboLevel == 2) ? true : false;
