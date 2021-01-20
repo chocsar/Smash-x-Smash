@@ -15,8 +15,6 @@ public class PlayerController : MonoBehaviour
     [System.NonSerialized] public bool groundedPrev = false;
     //[System.NonSerialized] public Vector2 attackNockBackVector = Vector2.zero;
 
-
-
     //＝＝＝キャッシュ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     [System.NonSerialized] public Animator animator;
     [System.NonSerialized] public Rigidbody2D rb2D;
@@ -35,12 +33,12 @@ public class PlayerController : MonoBehaviour
     private Vector3 initSpritePos;
     private Vector3 initBodyColliderPos;
 
-    private bool atkInputEnabled = false; //trueの間、コンボ入力受付
+    private bool atkInputEnabled = false; //trueの間コンボ入力受付
     private bool atkInputNow = false; //コンボ入力が行われたかどうか
 
     private float gravityScale = 10.0f;
-    private bool addForceEnabled = false;
-    private float addForceStartTime = 0;
+    private bool addForceEnabled = false;//力が加わったかどうか
+    private float addForceStartTime = 0;//力が加わった時刻
 
 
     //＝＝＝コード（Monobehavior基本機能の実装）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
@@ -65,16 +63,6 @@ public class PlayerController : MonoBehaviour
         playerStatusManager = GetComponent<PlayerStatusManager>();
     }
 
-    void Start()
-    {
-
-    }
-
-    void Update()
-    {
-
-    }
-
     private void FixedUpdate()
     {
         //地面チェック
@@ -95,14 +83,10 @@ public class PlayerController : MonoBehaviour
         {
             rb2D.velocity = new Vector2(speedVx, rb2D.velocity.y);
         }
-
     }
 
     private void FixedUpdateCharacter()
     {
-        //現在のステートを取得
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
         //ジャンプ中のとき
         if (jumped)
         {
@@ -122,10 +106,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //攻撃中の移動停止
-        if (stateInfo.fullPathHash == PlayerAnimationHash.AttackA ||
-            stateInfo.fullPathHash == PlayerAnimationHash.AttackB ||
-            stateInfo.fullPathHash == PlayerAnimationHash.AttackC /*||
-            stateInfo.fullPathHash == PlayerAnimationHash.JumpAttack*/)
+        if (IsAttackAnimation())
         {
             speedVx = 0;
         }
@@ -139,27 +120,27 @@ public class PlayerController : MonoBehaviour
 
 
     //＝＝＝コード（アニメーションイベント用コード）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    public void ResetPosition() //Sprite, Colliderの位置変化を親にも反映する
-    {
-        Vector3 currentSpritePos = spriteTransform.localPosition;
-        Vector3 diff = currentSpritePos - initSpritePos;
 
-        spriteTransform.localPosition = initSpritePos;
-        bodyColliderTransform.localPosition = initBodyColliderPos;
-
-        transform.position += diff * direction;
-    }
-
+    /// <summary>
+    /// コンボ入力の受付開始
+    /// </summary>
     public void EnableAttackInput()
     {
         atkInputEnabled = true;
     }
 
+    /// <summary>
+    /// コンボ入力の受付終了
+    /// </summary>
     public void DisableAttackInput()
     {
         atkInputEnabled = false;
     }
 
+    /// <summary>
+    /// 次の攻撃を実行する
+    /// </summary>
+    /// <param name="stateName"></param>
     public void SetNextAttack(string stateName)
     {
         if (atkInputNow == true)
@@ -170,93 +151,112 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 重力を小さくする
+    /// </summary>
     public void SetLightGravity()
     {
         rb2D.velocity = Vector2.zero;
 
-        rb2D.AddForce(new Vector2(300 * direction, 200)); //移動計算を物理演算に任せる必要性
+        //前進する
+        rb2D.AddForce(new Vector2(300 * direction, 200));
         addForceEnabled = true;
         addForceStartTime = Time.fixedTime;
 
         rb2D.gravityScale = 2f;
     }
 
+    /// <summary>
+    /// 重力を元に戻す
+    /// </summary>
     public void ResetGravity()
     {
         rb2D.gravityScale = gravityScale;
     }
 
+    /// <summary>
+    /// アニメーションによる移動を親にも反映する
+    /// </summary>
+    public void ResetPosition()
+    {
+        Vector3 currentSpritePos = spriteTransform.localPosition;
+        Vector3 diff = currentSpritePos - initSpritePos;
+
+        spriteTransform.localPosition = initSpritePos;
+        bodyColliderTransform.localPosition = initBodyColliderPos;
+
+        transform.position += diff * direction;
+    }
+
 
     //＝＝＝コード（基本アクション）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    public void ActionMove(float n)
+
+    /// <summary>
+    /// 移動アクション
+    /// </summary>
+    /// <param name="value"></param>
+    public void ActionMove(float value)
     {
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        if (!IsBaseAnimation()) return;
 
-        if (stateInfo.fullPathHash == PlayerAnimationHash.Idle ||
-            stateInfo.fullPathHash == PlayerAnimationHash.Walk ||
-            stateInfo.fullPathHash == PlayerAnimationHash.Run ||
-            stateInfo.fullPathHash == PlayerAnimationHash.Jump)
+        //アニメーションの指定
+        float moveSpeed = Mathf.Abs(value);
+        animator.SetFloat("MoveSpeed", moveSpeed);
+
+        //移動
+        if (value != 0.0f)
         {
-            //アニメーションの指定
-            float moveSpeed = Mathf.Abs(n);
-            animator.SetFloat("MoveSpeed", moveSpeed);
-
-            //移動
-            if (n != 0.0f)
-            {
-                direction = Mathf.Sign(n);
-                moveSpeed = (moveSpeed < 0.5f) ? (moveSpeed * (1.0f / 0.5f)) : 1.0f;
-                speedVx = speed * moveSpeed * direction;
-            }
-            else
-            {
-                speedVx = 0;
-            }
+            direction = Mathf.Sign(value);
+            moveSpeed = (moveSpeed < 0.5f) ? (moveSpeed * (1.0f / 0.5f)) : 1.0f;
+            speedVx = speed * moveSpeed * direction;
         }
+        else
+        {
+            speedVx = 0;
+        }
+
     }
 
+    /// <summary>
+    /// ジャンプアクション
+    /// </summary>
     public void ActionJump()
     {
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        if (!IsBaseAnimation()) return;
 
-        if (stateInfo.fullPathHash == PlayerAnimationHash.Idle ||
-           stateInfo.fullPathHash == PlayerAnimationHash.Walk ||
-           stateInfo.fullPathHash == PlayerAnimationHash.Run ||
-           stateInfo.fullPathHash == PlayerAnimationHash.Jump)
+        switch (jumpCount)
         {
-            switch (jumpCount)
-            {
-                case 0:
-                    if (grounded)
-                    {
-                        animator.SetTrigger("Jump");
-                        rb2D.velocity = Vector2.up * 30.0f;
-                        jumped = true;
-                        jumpCount++;
-                    }
-                    break;
+            case 0:
+                if (grounded)
+                {
+                    animator.SetTrigger("Jump");
+                    rb2D.velocity = Vector2.up * 30.0f;
+                    jumped = true;
+                    jumpCount++;
+                }
+                break;
 
-                case 1:
-                    if (!grounded)
-                    {
-                        animator.Play("Player_Jump", 0, 0.0f);
-                        rb2D.velocity = Vector2.up * 20.0f;
-                        jumped = true;
-                        jumpCount++;
-                    }
-                    break;
-            }
+            case 1:
+                if (!grounded)
+                {
+                    animator.Play("Player_Jump", 0, 0.0f);
+                    rb2D.velocity = Vector2.up * 20.0f;
+                    jumped = true;
+                    jumpCount++;
+                }
+                break;
         }
+
     }
 
+    /// <summary>
+    /// 攻撃アクション
+    /// </summary>
     public void ActionAttack()
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        if (stateInfo.fullPathHash == PlayerAnimationHash.Idle ||
-            stateInfo.fullPathHash == PlayerAnimationHash.Walk ||
-            stateInfo.fullPathHash == PlayerAnimationHash.Run ||
-            stateInfo.fullPathHash == PlayerAnimationHash.Jump)
+        if (IsBaseAnimation())
         {
             animator.SetTrigger("Attack_A");
             playerStatusManager.CalclateAttackNockBackVector(direction, stateInfo.fullPathHash);
@@ -271,6 +271,8 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    //＝＝＝コード（サポート関数）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 
     /// <summary>
     /// 地面を判定するメソッド
@@ -298,5 +300,35 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 基本アニメション（Idle, Walk, Run, Jump）かどうかを返す
+    /// </summary>
+    /// <returns></returns>
+    private bool IsBaseAnimation()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        return (stateInfo.fullPathHash == PlayerAnimationHash.Idle ||
+                stateInfo.fullPathHash == PlayerAnimationHash.Walk ||
+                stateInfo.fullPathHash == PlayerAnimationHash.Run ||
+                stateInfo.fullPathHash == PlayerAnimationHash.Jump)
+                ;
+    }
+
+    /// <summary>
+    /// 攻撃アニメーションかどうかをかえす
+    /// </summary>
+    /// <returns></returns>
+    private bool IsAttackAnimation()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        return (stateInfo.fullPathHash == PlayerAnimationHash.AttackA ||
+                stateInfo.fullPathHash == PlayerAnimationHash.AttackB ||
+                stateInfo.fullPathHash == PlayerAnimationHash.AttackC /*||
+                stateInfo.fullPathHash == PlayerAnimationHash.JumpAttack*/)
+            ;
     }
 }
