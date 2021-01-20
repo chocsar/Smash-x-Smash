@@ -9,21 +9,12 @@ public class PlayerController : MonoBehaviour
     //public GameObject comboEffect;
 
     //＝＝＝外部パラメータ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    [System.NonSerialized] public float dir = 1.0f;
+    [System.NonSerialized] public float direction = 1.0f;
     [System.NonSerialized] public bool jumped = false;
     [System.NonSerialized] public bool grounded = false;
     [System.NonSerialized] public bool groundedPrev = false;
     //[System.NonSerialized] public Vector2 attackNockBackVector = Vector2.zero;
 
-    //アニメーションのハッシュ名
-    public static int ANISTS_Idle = Animator.StringToHash("Base Layer.Player_Idle");
-    public static int ANISTS_Walk = Animator.StringToHash("Base Layer.Player_Walk");
-    public static int ANISTS_Run = Animator.StringToHash("Base Layer.Player_Run");
-    public static int ANISTS_Jump = Animator.StringToHash("Base Layer.Player_Jump");
-    public static int ANISTS_Attack_A = Animator.StringToHash("Base Layer.Player_Attack_A");
-    public static int ANISTS_Attack_B = Animator.StringToHash("Base Layer.Player_Attack_B");
-    public static int ANISTS_Attack_C = Animator.StringToHash("Base Layer.Player_Attack_C");
-    public static int ANISTS_JumpAttack = Animator.StringToHash("Base Layer.Player_JumpAttack");
 
 
     //＝＝＝キャッシュ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
@@ -62,7 +53,7 @@ public class PlayerController : MonoBehaviour
         groundCheck_C = transform.Find("GroundCheck_C");
         groundCheck_R = transform.Find("GroundCheck_R");
 
-        dir = (transform.localScale.x > 0.0f) ? 1.0f : -1.0f;
+        direction = (transform.localScale.x > 0.0f) ? 1.0f : -1.0f;
 
         spriteTransform = transform.Find("PlayerSprite");
         bodyColliderTransform = transform.Find("Collider_Body");
@@ -87,31 +78,10 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         //地面チェック
-        groundedPrev = grounded;
-        grounded = false;
-
-        Collider2D[][] groundCheckCollider = new Collider2D[3][]; //ジャグ配列
-        groundCheckCollider[0] = Physics2D.OverlapPointAll(groundCheck_C.position);
-        groundCheckCollider[1] = Physics2D.OverlapPointAll(groundCheck_L.position);
-        groundCheckCollider[2] = Physics2D.OverlapPointAll(groundCheck_R.position);
-
-        foreach (Collider2D[] groundCheckList in groundCheckCollider)
-        {
-            foreach (Collider2D groundCheck in groundCheckList)
-            {
-                if (groundCheck != null)
-                {
-                    if (!groundCheck.isTrigger)
-                    {
-                        grounded = true;
-                    }
-                }
-            }
-        }
+        GroundCheck();
 
         //キャラクター個別の処理
         FixedUpdateCharacter();
-
 
         //移動計算
         if (addForceEnabled) //AddForceした時 → 一定時間、移動を物理演算に任せる
@@ -152,20 +122,21 @@ public class PlayerController : MonoBehaviour
         }
 
         //攻撃中の移動停止
-        if (stateInfo.fullPathHash == ANISTS_Attack_A ||
-            stateInfo.fullPathHash == ANISTS_Attack_B ||
-            stateInfo.fullPathHash == ANISTS_Attack_C /*||
-            stateInfo.fullPathHash == ANISTS_JumpAttack*/)
+        if (stateInfo.fullPathHash == PlayerAnimationHash.AttackA ||
+            stateInfo.fullPathHash == PlayerAnimationHash.AttackB ||
+            stateInfo.fullPathHash == PlayerAnimationHash.AttackC /*||
+            stateInfo.fullPathHash == PlayerAnimationHash.JumpAttack*/)
         {
             speedVx = 0;
         }
 
-        //キャラの方向
-        transform.localScale = new Vector3(dir, transform.localScale.y, transform.localScale.z);
+        //キャラの方向を設定
+        transform.localScale = new Vector3(direction, transform.localScale.y, transform.localScale.z);
 
-        //カメラ
+        //カメラの追尾
         //Camera.main.transform.position = transform.position + new Vector3(0, 4, -1);
     }
+
 
     //＝＝＝コード（アニメーションイベント用コード）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
     public void ResetPosition() //Sprite, Colliderの位置変化を親にも反映する
@@ -176,7 +147,7 @@ public class PlayerController : MonoBehaviour
         spriteTransform.localPosition = initSpritePos;
         bodyColliderTransform.localPosition = initBodyColliderPos;
 
-        transform.position += diff * dir;
+        transform.position += diff * direction;
     }
 
     public void EnableAttackInput()
@@ -203,7 +174,7 @@ public class PlayerController : MonoBehaviour
     {
         rb2D.velocity = Vector2.zero;
 
-        rb2D.AddForce(new Vector2(300 * dir, 200)); //移動計算を物理演算に任せる必要性
+        rb2D.AddForce(new Vector2(300 * direction, 200)); //移動計算を物理演算に任せる必要性
         addForceEnabled = true;
         addForceStartTime = Time.fixedTime;
 
@@ -221,10 +192,10 @@ public class PlayerController : MonoBehaviour
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        if (stateInfo.fullPathHash == ANISTS_Idle ||
-            stateInfo.fullPathHash == ANISTS_Walk ||
-            stateInfo.fullPathHash == ANISTS_Run ||
-            stateInfo.fullPathHash == ANISTS_Jump)
+        if (stateInfo.fullPathHash == PlayerAnimationHash.Idle ||
+            stateInfo.fullPathHash == PlayerAnimationHash.Walk ||
+            stateInfo.fullPathHash == PlayerAnimationHash.Run ||
+            stateInfo.fullPathHash == PlayerAnimationHash.Jump)
         {
             //アニメーションの指定
             float moveSpeed = Mathf.Abs(n);
@@ -233,9 +204,9 @@ public class PlayerController : MonoBehaviour
             //移動
             if (n != 0.0f)
             {
-                dir = Mathf.Sign(n);
+                direction = Mathf.Sign(n);
                 moveSpeed = (moveSpeed < 0.5f) ? (moveSpeed * (1.0f / 0.5f)) : 1.0f;
-                speedVx = speed * moveSpeed * dir;
+                speedVx = speed * moveSpeed * direction;
             }
             else
             {
@@ -248,10 +219,10 @@ public class PlayerController : MonoBehaviour
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        if (stateInfo.fullPathHash == ANISTS_Idle ||
-           stateInfo.fullPathHash == ANISTS_Walk ||
-           stateInfo.fullPathHash == ANISTS_Run ||
-           stateInfo.fullPathHash == ANISTS_Jump)
+        if (stateInfo.fullPathHash == PlayerAnimationHash.Idle ||
+           stateInfo.fullPathHash == PlayerAnimationHash.Walk ||
+           stateInfo.fullPathHash == PlayerAnimationHash.Run ||
+           stateInfo.fullPathHash == PlayerAnimationHash.Jump)
         {
             switch (jumpCount)
             {
@@ -282,13 +253,13 @@ public class PlayerController : MonoBehaviour
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        if (stateInfo.fullPathHash == ANISTS_Idle ||
-            stateInfo.fullPathHash == ANISTS_Walk ||
-            stateInfo.fullPathHash == ANISTS_Run ||
-            stateInfo.fullPathHash == ANISTS_Jump)
+        if (stateInfo.fullPathHash == PlayerAnimationHash.Idle ||
+            stateInfo.fullPathHash == PlayerAnimationHash.Walk ||
+            stateInfo.fullPathHash == PlayerAnimationHash.Run ||
+            stateInfo.fullPathHash == PlayerAnimationHash.Jump)
         {
             animator.SetTrigger("Attack_A");
-            playerStatusManager.CalclateAttackNockBackVector(dir, stateInfo.fullPathHash);
+            playerStatusManager.CalclateAttackNockBackVector(direction, stateInfo.fullPathHash);
         }
         else
         {
@@ -296,7 +267,35 @@ public class PlayerController : MonoBehaviour
             {
                 atkInputEnabled = false;
                 atkInputNow = true;
-                playerStatusManager.CalclateAttackNockBackVector(dir, stateInfo.fullPathHash);
+                playerStatusManager.CalclateAttackNockBackVector(direction, stateInfo.fullPathHash);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 地面を判定するメソッド
+    /// </summary>
+    private void GroundCheck()
+    {
+        groundedPrev = grounded;
+        grounded = false;
+
+        Collider2D[][] groundCheckCollider = new Collider2D[3][]; //ジャグ配列
+        groundCheckCollider[0] = Physics2D.OverlapPointAll(groundCheck_C.position);
+        groundCheckCollider[1] = Physics2D.OverlapPointAll(groundCheck_L.position);
+        groundCheckCollider[2] = Physics2D.OverlapPointAll(groundCheck_R.position);
+
+        foreach (Collider2D[] groundCheckList in groundCheckCollider)
+        {
+            foreach (Collider2D groundCheck in groundCheckList)
+            {
+                if (groundCheck != null)
+                {
+                    if (!groundCheck.isTrigger)
+                    {
+                        grounded = true;
+                    }
+                }
             }
         }
     }

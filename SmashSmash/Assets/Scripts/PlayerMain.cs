@@ -8,7 +8,6 @@ public class PlayerMain : MonoBehaviour
     PlayerController playerCtrl;
 
     //＝＝＝コード（Monobehabior基本機能の実装）＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-
     void Awake()
     {
         playerCtrl = GetComponent<PlayerController>();
@@ -16,19 +15,19 @@ public class PlayerMain : MonoBehaviour
 
     void Update()
     {
-        //パッド処理
+        //移動
         float joyMv = Input.GetAxis("Horizontal");
         playerCtrl.ActionMove(joyMv);
 
         //ジャンプ
-        if(Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump"))
         {
             playerCtrl.ActionJump();
             return; //ジャンプ処理直後に攻撃が発生しないようにする
         }
 
         //攻撃
-        if(Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1"))
         {
             playerCtrl.ActionAttack();
         }

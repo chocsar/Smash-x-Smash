@@ -27,7 +27,7 @@ public class PlayerStatusManager : MonoBehaviour
     private int totalPlayerExp = 0; //経験値の総量
 
     private int requiredExp; //次のレベルアップに必要な経験値
-    
+
     private float smashValue; //今のスマッシュ値（0 ~ 100）
     private float extraSmashValue; //スマッシュモード中も加算されるEXスマッシュ値
 
@@ -37,7 +37,7 @@ public class PlayerStatusManager : MonoBehaviour
     private float lossSmashInSmashMode = 15; //スマッシュ値の時間減少（スマッシュモード時）
 
     private int conboLevel = 3; //コンボ攻撃の回数（1 ~ 3）
-    
+
     private float basNocBackPower = 10; //ノックバックの基本速度
     //public float nockBackTimer_Debug = 0.1f;
 
@@ -226,12 +226,12 @@ public class PlayerStatusManager : MonoBehaviour
         Vector2 nockBack = Vector2.zero;
 
         //ラストアタックかどうか判定
-        if (ANISTS == PlayerController.ANISTS_Attack_B || ANISTS == PlayerController.ANISTS_Jump)
+        if (ANISTS == PlayerAnimationHash.AttackB || ANISTS == PlayerAnimationHash.Jump)
         {
             //攻撃Cとジャンプ攻撃
             isLastAttack = true;
         }
-        else if (ANISTS == PlayerController.ANISTS_Attack_A)
+        else if (ANISTS == PlayerAnimationHash.AttackA)
         {
             //攻撃B
             isLastAttack = (conboLevel == 2) ? true : false;
@@ -255,8 +255,8 @@ public class PlayerStatusManager : MonoBehaviour
 
                 //nockBack = new Vector2(dir * Mathf.Cos(Mathf.PI / 4), Mathf.Sin(Mathf.PI / 4)) * 10;
 
-                nockBackTimer = (nockBack.magnitude <= 30) ? 0.1f : nockBack.magnitude/100 - 0.2f; //最大でも1sくらいにする？
-            
+                nockBackTimer = (nockBack.magnitude <= 30) ? 0.1f : nockBack.magnitude / 100 - 0.2f; //最大でも1sくらいにする？
+
                 //nockBackTimer = 3;
             }
             else
@@ -273,7 +273,7 @@ public class PlayerStatusManager : MonoBehaviour
         }
 
         attackNockBackVector = nockBack;
-        
+
         //デバッグ用
         //isLastAttack = true;
         //nockBackTimer = nockBackTimer_Debug;

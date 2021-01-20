@@ -10,7 +10,7 @@ public class EnemyBodyCollider : MonoBehaviour
     PlayerStatusManager playerStatusManager;
 
     int attackHash = 0; //ダメージ判定を一度きりに制限するため
-    
+
     void Awake()
     {
         enemyCtrl = GetComponentInParent<EnemyController>();
@@ -23,7 +23,7 @@ public class EnemyBodyCollider : MonoBehaviour
     void Update()
     {
         AnimatorStateInfo stateInfo = playerAnim.GetCurrentAnimatorStateInfo(0);
-        if(attackHash != 0 && stateInfo.fullPathHash == PlayerController.ANISTS_Idle)
+        if (attackHash != 0 && stateInfo.fullPathHash == PlayerAnimationHash.Idle)
         {
             attackHash = 0;
         }
@@ -31,14 +31,14 @@ public class EnemyBodyCollider : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.tag == "PlayerArm")
+        if (other.tag == "PlayerArm")
         {
             AnimatorStateInfo stateInfo = playerAnim.GetCurrentAnimatorStateInfo(0);
-            if(attackHash != stateInfo.fullPathHash)
+            if (attackHash != stateInfo.fullPathHash)
             {
                 attackHash = stateInfo.fullPathHash;
                 enemyCtrl.ActionDamage();
-                
+
                 enemyCtrl.NockBack
                 (
                     playerStatusManager.attackNockBackVector,
